@@ -1,9 +1,14 @@
 
 
+
+
 from pymongo import MongoClient
 import os
+from dotenv import load_dotenv
 
-client = MongoClient(os.environ.get("MONGO_URI"))
+load_dotenv()
+
+client = MongoClient(os.getenv("MONGO_URI"))
 
 db = client["livestock_db"]
 users_collection = db["users"]
