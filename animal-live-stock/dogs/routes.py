@@ -1,16 +1,10 @@
 from flask import Blueprint, render_template, request, jsonify
 import os
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
 from werkzeug.utils import secure_filename
 
 from disease_info import DISEASE_INFO
 from history_service import save_prediction
-
-# Reduce TensorFlow logs
-tf.get_logger().setLevel("ERROR")
 
 bp = Blueprint("dogs", __name__)
 
@@ -37,18 +31,29 @@ CLASS_LABELS = [
 # -------------------------
 
 model = None
+image_loader = None
+
 
 def get_model():
-    global model
+    global model, image_loader
+
     if model is None:
         print(f"Loading Dog Disease Model from {MODEL_PATH}...")
-        try:
-            model = load_model(MODEL_PATH)
-            print("✅ Dog Model loaded successfully")
-        except Exception as e:
-            print(f"❌ Error loading Dog Model: {e}")
-            raise e
-    return model
+
+        # Import TensorFlow only when needed
+        import tensorflow as tf
+        from tensorflow.keras.models import load_model
+        from tensorflow.keras.preprocessing import image as keras_image
+
+        tf.get_logger().setLevel("ERROR")
+
+        model = load_model(MODEL_PATH)
+        image_loader = keras_image
+
+        print("✅ Dog Model loaded successfully")
+
+    return model, image_loader
+
 
 # -------------------------
 # Routes
@@ -75,12 +80,12 @@ def predict():
 
     try:
 
+        # Load model lazily
+        model, image = get_model()
+
         img = image.load_img(filepath, target_size=(224, 224))
         img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0) / 255.0
-
-        # Load model only when needed
-        model = get_model()
 
         predictions = model.predict(img_array)
 
