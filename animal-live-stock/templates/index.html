@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animal Disease Prediction</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+    }
+
+    header {
+      background: linear-gradient(45deg, #007bff, #00d4ff);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      width: 320px;
+      text-align: center;
+    }
+
+    .card h2 {
+      margin: 0 0 10px 0;
+    }
+
+    .card p {
+      color: #555;
+    }
+
+    .card a {
+      display: inline-block;
+      margin-top: 12px;
+      background: #007bff;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .card a:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Animal Disease Prediction</h1>
+    <p>Select a predictor</p>
+  </header>
+  <div class="container">
+    <div class="cards">
+      <div class="card">
+        <h2>Dog Skin Disease</h2>
+        <p>Upload a dog's skin image to detect diseases.</p>
+        <a href="/dogs/">Open Dog Predictor</a>
+      </div>
+      <div class="card">
+        <h2>Poultry Diseases</h2>
+        <p>Analyze chicken feces image to identify diseases.</p>
+        <a href="/poultry/">Open Poultry Predictor</a>
+      </div>
+      <div class="card">
+        <h2>Cattle Diseases</h2>
+        <p>Upload an image of cattle to detect diseases (Lumpy Skin, Foot & Mouth).</p>
+        <a href="/cattle/">Open Cattle Predictor</a>
+      </div>
+      <div class="card">
+        <h2>Cat Diseases</h2>
+        <p>Upload a cat image to detect diseases (Scabies, Ringworm, etc.).</p>
+        <a href="/goats/">Open Cat Predictor</a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

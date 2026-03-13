@@ -1,0 +1,18 @@
+# Python virtual environment
+myenv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Upload folders
+*/uploads/
+
+# Node modules
+node_modules/
+
+# Build
+dist/
+
+# Local DB
+user.json
