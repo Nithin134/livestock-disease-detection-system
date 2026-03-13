@@ -49,7 +49,7 @@ def signup():
 @auth_bp.route('/login', methods=['POST'])
 def login():
 
-    data = request.json
+    data = request.get_json() or {}
 
     email = data.get('email')
     password = data.get('password')
@@ -74,7 +74,7 @@ def login():
 @auth_bp.route('/history', methods=['POST'])
 def add_history():
 
-    data = request.json
+    data = request.get_json() or {}
 
     user_id = data.get("user_id")
     history_item = data.get("history_item")
