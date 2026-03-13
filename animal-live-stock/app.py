@@ -13,16 +13,15 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Register blueprints with prefixes
-app.register_blueprint(dogs_bp, url_prefix="/dogs")
-app.register_blueprint(poultry_bp, url_prefix="/poultry")
-app.register_blueprint(cattle_bp, url_prefix="/cattle")
-app.register_blueprint(goats_bp, url_prefix="/goats")
+#app.register_blueprint(dogs_bp, url_prefix="/dogs")
+#app.register_blueprint(poultry_bp, url_prefix="/poultry")
+#app.register_blueprint(cattle_bp, url_prefix="/cattle")
+#app.register_blueprint(goats_bp, url_prefix="/goats")
 app.register_blueprint(auth_bp, url_prefix="/auth")
 
 @app.route("/")
 def home():
-    return render_template("index.html")
-
+    return {"status": "server running"}
 
 
 
