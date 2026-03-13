@@ -123,7 +123,7 @@ const DetectionUpload = () => {
     };
 
     const routePrefix = animalRouteMap[animalKey];
-    const backendUrl = `https://livestock-disease-detection-system-production.up.railway.app//${routePrefix}/predict`;
+    const backendUrl = `https://livestock-disease-detection-system-production.up.railway.app/${routePrefix}/predict`;
 
     try {
       const response = await fetch(backendUrl, {
@@ -155,7 +155,7 @@ const DetectionUpload = () => {
       const userStr = localStorage.getItem("user");
       if (userStr) {
         const user = JSON.parse(userStr);
-        await fetch("https://livestock-disease-detection-system-production.up.railway.app//auth/history", {
+        await fetch("https://livestock-disease-detection-system-production.up.railway.app/auth/history", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
