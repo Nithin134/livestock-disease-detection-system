@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify, render_template
-import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
@@ -7,9 +6,6 @@ import os
 
 from disease_info import DISEASE_INFO
 from history_service import save_prediction
-
-# Reduce TensorFlow logs
-tf.get_logger().setLevel("ERROR")
 
 bp = Blueprint("goats", __name__)
 
@@ -36,15 +32,22 @@ model = None
 
 def get_model():
     global model
+
     if model is None:
+
         print(f"Loading Goat Model from {MODEL_PATH}...")
-        try:
-            model = tf.keras.models.load_model(MODEL_PATH)
-            print("✅ Goat Model loaded successfully")
-        except Exception as e:
-            print(f"❌ Error loading Goat model: {e}")
-            raise e
+
+        # Lazy TensorFlow import
+        import tensorflow as tf
+
+        tf.get_logger().setLevel("ERROR")
+
+        model = tf.keras.models.load_model(MODEL_PATH)
+
+        print("✅ Goat Model loaded successfully")
+
     return model
+
 
 # -----------------------------
 # Image preprocessing
@@ -58,6 +61,7 @@ def preprocess_image(image_bytes):
     image = np.expand_dims(image, axis=0)
 
     return image
+
 
 # -----------------------------
 # Routes
@@ -85,7 +89,7 @@ def predict():
 
         processed_image = preprocess_image(image_bytes)
 
-        # Load model only when needed
+        # Load model lazily
         model = get_model()
 
         predictions = model.predict(processed_image)[0]
@@ -102,10 +106,8 @@ def predict():
             "foodItems": ["Balanced diet"]
         })
 
-        # Get user id
         user_id = request.form.get("user_id")
 
-        # Save prediction to MongoDB
         if user_id:
             save_prediction(
                 user_id=user_id,
@@ -125,4 +127,5 @@ def predict():
         })
 
     except Exception as e:
+        print("Prediction error:", e)
         return jsonify({"error": str(e)}), 500
