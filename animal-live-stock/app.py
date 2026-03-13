@@ -7,6 +7,7 @@ from cattle.routes import bp as cattle_bp
 from goats.routes import bp as goats_bp
 
 from auth_routes import auth_bp
+import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -22,5 +23,9 @@ app.register_blueprint(auth_bp, url_prefix="/auth")
 def home():
     return render_template("index.html")
 
+
+import os
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
