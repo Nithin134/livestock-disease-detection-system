@@ -123,7 +123,7 @@ const DetectionUpload = () => {
     };
 
     const routePrefix = animalRouteMap[animalKey];
-    const backendUrl = `http://127.0.0.1:5000/${routePrefix}/predict`;
+    const backendUrl = `https://livestock-disease-detection-system-production.up.railway.app//${routePrefix}/predict`;
 
     try {
       const response = await fetch(backendUrl, {
