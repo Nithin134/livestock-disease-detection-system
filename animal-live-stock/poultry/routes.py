@@ -1,14 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, send_from_directory, jsonify
-import tensorflow as tf
 import os
-from werkzeug.utils import secure_filename
 import numpy as np
+from werkzeug.utils import secure_filename
 
 from disease_info import DISEASE_INFO
 from history_service import save_prediction
-
-# Reduce TensorFlow logs
-tf.get_logger().setLevel("ERROR")
 
 bp = Blueprint("poultry", __name__)
 
@@ -19,35 +15,41 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 MODEL_PATH = os.path.join("poultry", "model", "mobilenetV2", "mobilenetv2.h5")
 
 # -----------------------------
-# Fix for DepthwiseConv2D issue
-# -----------------------------
-
-class DepthwiseConv2DFixed(tf.keras.layers.DepthwiseConv2D):
-    def __init__(self, **kwargs):
-        kwargs.pop("groups", None)
-        super().__init__(**kwargs)
-
-# -----------------------------
 # Lazy Model Loading
 # -----------------------------
 
 model = None
+tf = None
+
 
 def get_model():
-    global model
+    global model, tf
+
     if model is None:
+
         print(f"Loading Poultry Model from {MODEL_PATH}...")
-        try:
-            model = tf.keras.models.load_model(
-                MODEL_PATH,
-                compile=False,
-                custom_objects={"DepthwiseConv2D": DepthwiseConv2DFixed}
-            )
-            print("✅ Poultry Model loaded successfully")
-        except Exception as e:
-            print(f"❌ Error loading Poultry Model: {e}")
-            raise e
+
+        # Lazy import TensorFlow
+        import tensorflow as tensorflow_lib
+        tf = tensorflow_lib
+
+        tf.get_logger().setLevel("ERROR")
+
+        class DepthwiseConv2DFixed(tf.keras.layers.DepthwiseConv2D):
+            def __init__(self, **kwargs):
+                kwargs.pop("groups", None)
+                super().__init__(**kwargs)
+
+        model = tf.keras.models.load_model(
+            MODEL_PATH,
+            compile=False,
+            custom_objects={"DepthwiseConv2D": DepthwiseConv2DFixed}
+        )
+
+        print("✅ Poultry Model loaded successfully")
+
     return model
+
 
 # -----------------------------
 # Helpers
@@ -59,6 +61,16 @@ def allowed_file(filename: str):
 
 def predict_image(image_path: str):
 
+    model = get_model()
+
+    img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
+    img_array = tf.keras.preprocessing.image.img_to_array(img)
+    img_array = tf.expand_dims(img_array, 0)
+
+    predictions = model.predict(img_array * 1 / 255.0)
+
+    score = tf.nn.softmax(predictions[0])
+
     classes = {
         "Coccidiosis": 0,
         "Healthy": 1,
@@ -66,21 +78,11 @@ def predict_image(image_path: str):
         "Salmonella": 3
     }
 
-    img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
-    img_array = tf.keras.preprocessing.image.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0)
-
-    # Load model only when needed
-    model = get_model()
-
-    predictions = model.predict(img_array * 1 / 255.0)
-
-    score = tf.nn.softmax(predictions[0])
-
     pred_class = [j for j in classes if classes[j] == int(np.argmax(score))][0]
     confidence = round(100 * float(np.max(score)), 2)
 
     return pred_class, confidence
+
 
 # -----------------------------
 # Routes
