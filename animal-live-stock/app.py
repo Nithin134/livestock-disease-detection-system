@@ -9,7 +9,7 @@ from goats.routes import bp as goats_bp
 from auth_routes import auth_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Register blueprints with prefixes
 app.register_blueprint(dogs_bp, url_prefix="/dogs")
