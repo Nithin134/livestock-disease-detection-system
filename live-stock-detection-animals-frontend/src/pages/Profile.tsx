@@ -15,11 +15,16 @@ interface HistoryItem {
   food: string[];
   medications: string[];
 }
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 const Profile = () => {
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<User | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,16 +39,19 @@ const Profile = () => {
   }, [navigate]);
 
   const fetchHistory = async (userId: string) => {
-    try {
-      const response = await fetch(`http://localhost:5000/auth/history/${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data.reverse()); // Show latest first
-      }
-    } catch (error) {
-      console.error("Failed to fetch history:", error);
+  try {
+    const response = await fetch(
+      `https://livestock-disease-detection-system-production.up.railway.app/auth/history/${userId}`
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      setHistory(data.reverse());
     }
-  };
+  } catch (error) {
+    console.error("Failed to fetch history:", error);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -187,7 +195,7 @@ const DetailAccordion = ({
   items, 
   defaultOpen = false 
 }: { 
-  icon: any; 
+  icon: React.ElementType; 
   title: string; 
   items: string[];
   defaultOpen?: boolean;

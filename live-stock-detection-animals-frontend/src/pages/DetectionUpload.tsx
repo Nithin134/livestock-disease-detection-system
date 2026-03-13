@@ -155,7 +155,7 @@ const DetectionUpload = () => {
       const userStr = localStorage.getItem("user");
       if (userStr) {
         const user = JSON.parse(userStr);
-        await fetch("http://localhost:5000/auth/history", {
+        await fetch("https://livestock-disease-detection-system-production.up.railway.app//auth/history", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
