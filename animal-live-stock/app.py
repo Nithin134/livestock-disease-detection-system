@@ -10,7 +10,7 @@ from auth_routes import auth_bp
 import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 # Register blueprints with prefixes
 #app.register_blueprint(dogs_bp, url_prefix="/dogs")
