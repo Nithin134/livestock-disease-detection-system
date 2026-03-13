@@ -2,15 +2,10 @@ from flask import Blueprint, render_template, request, jsonify
 import os
 import cv2
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import load_model
 from werkzeug.utils import secure_filename
 
 from disease_info import DISEASE_INFO
 from history_service import save_prediction
-
-# Reduce TensorFlow logs
-tf.get_logger().setLevel("ERROR")
 
 bp = Blueprint("cattle", __name__)
 
@@ -38,15 +33,23 @@ model = None
 
 def get_model():
     global model
+
     if model is None:
+
         print(f"Loading Cattle Disease Model from {MODEL_PATH}...")
-        try:
-            model = load_model(MODEL_PATH)
-            print("✅ Cattle Model loaded successfully")
-        except Exception as e:
-            print(f"❌ Error loading Cattle Model: {e}")
-            raise e
+
+        # Lazy TensorFlow import
+        import tensorflow as tf
+        from tensorflow.keras.models import load_model
+
+        tf.get_logger().setLevel("ERROR")
+
+        model = load_model(MODEL_PATH)
+
+        print("✅ Cattle Model loaded successfully")
+
     return model
+
 
 # -------------------------
 # Image preprocessing
@@ -65,6 +68,7 @@ def preprocess_image(filepath):
     img = np.expand_dims(img, axis=0)
 
     return img
+
 
 # -------------------------
 # Routes
@@ -95,7 +99,7 @@ def predict():
 
         img = preprocess_image(filepath)
 
-        # Load model only when needed
+        # Load model lazily
         model = get_model()
 
         preds = model.predict(img)
@@ -112,10 +116,8 @@ def predict():
             "foodItems": ["Balanced diet"]
         })
 
-        # Get user id from frontend
         user_id = request.form.get("user_id")
 
-        # Save prediction to MongoDB
         if user_id:
             save_prediction(
                 user_id=user_id,
@@ -135,4 +137,5 @@ def predict():
         })
 
     except Exception as e:
+        print("Prediction error:", e)
         return jsonify({"error": str(e)}), 500
